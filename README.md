@@ -1,6 +1,6 @@
 # Countdown Widget
 
-This project displays 
+This project hosts a widget that shows a countdown to a given date.
 
 ## Parameter
 
