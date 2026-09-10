@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      font-family: system-ui, sans-serif;
+    }
+
+    .countdown {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .days {
+      font-size: 3rem;
+      font-weight: bold;
+    }
+
+    .date {
+      margin-top: 0.25rem;
+      font-size: 1rem;
+    }
+
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="countdown" class="countdown"></div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+
+    const dateParam = params.get("date");
+    const showDate = params.get("showDate") === "true";
+
+    const countdown = document.getElementById("countdown");
+
+    if (!dateParam) {
+      showError("Missing required URL parameter: date");
+    } else {
+      const targetDate = parseDate(dateParam);
+
+      if (!targetDate) {
+        showError("Invalid date. Expected format: YYYY-MM-DD");
+      } else {
+        renderCountdown(targetDate);
+      }
+    }
+
+    function parseDate(value) {
+      const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+      if (!match) {
+        return null;
+      }
+
+      const [, year, month, day] = match;
+
+      const date = new Date(
+        Number(year),
+        Number(month) - 1,
+        Number(day)
+      );
+
+      // Make sure values such as 2026-02-31 are rejected.
+      if (
+        date.getFullYear() !== Number(year) ||
+        date.getMonth() !== Number(month) - 1 ||
+        date.getDate() !== Number(day)
+      ) {
+        return null;
+      }
+
+      return date;
+    }
+
+    function daysUntil(targetDate) {
+      const today = new Date();
+
+      // Compare calendar dates instead of hours/minutes.
+      const todayUtc = Date.UTC(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate()
+      );
+
+      const targetUtc = Date.UTC(
+        targetDate.getFullYear(),
+        targetDate.getMonth(),
+        targetDate.getDate()
+      );
+
+      return Math.round(
+        (targetUtc - todayUtc) / (1000 * 60 * 60 * 24)
+      );
+    }
+
+    function renderCountdown(targetDate) {
+      const days = daysUntil(targetDate);
+
+      const daysElement = document.createElement("div");
+      daysElement.className = "days";
+
+      if (days > 1) {
+        daysElement.textContent = `${days} days`;
+      } else if (days === 1) {
+        daysElement.textContent = "1 day";
+      } else if (days === 0) {
+        daysElement.textContent = "Today";
+      } else {
+        daysElement.textContent = `${Math.abs(days)} days ago`;
+      }
+
+      countdown.appendChild(daysElement);
+
+      if (showDate) {
+        const dateElement = document.createElement("div");
+        dateElement.className = "date";
+
+        dateElement.textContent = targetDate.toLocaleDateString(
+          undefined,
+          {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit"
+          }
+        );
+
+        countdown.appendChild(dateElement);
+      }
+    }
+
+    function showError(message) {
+      countdown.classList.add("error");
+      countdown.textContent = message;
+    }
+  </script>
+</body>
+</html>
