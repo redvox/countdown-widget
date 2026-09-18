@@ -132,7 +132,7 @@
       } else if (days === 0) {
         daysElement.textContent = "Today";
       } else {
-        daysElement.textContent = `${Math.abs(days)} days ago`;
+        daysElement.textContent = `+${Math.abs(days)} days ago`;
       }
 
       countdown.appendChild(daysElement);
