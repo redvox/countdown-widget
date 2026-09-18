@@ -46,6 +46,14 @@
     const dateParam = params.get("date");
     const showDate = params.get("showDate") === "true";
 
+    // Use the first matching threshold, in this order.
+    const colorThresholds = [
+      { days: 14, color: "#EF5350" },
+      { days: 28, color: "#FFCC80" },
+      { days: 90, color: "#C6DCFF" },
+      { days: 180, color: "#ADF0C7" }
+    ];
+
     const countdown = document.getElementById("countdown");
 
     if (!dateParam) {
@@ -113,6 +121,9 @@
 
       const daysElement = document.createElement("div");
       daysElement.className = "days";
+      daysElement.style.color = colorThresholds.find(
+        threshold => days <= threshold.days
+      )?.color ?? "#000000";
 
       if (days > 1) {
         daysElement.textContent = `${days} days`;
